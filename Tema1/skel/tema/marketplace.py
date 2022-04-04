@@ -1,11 +1,4 @@
-"""
-This module represents the Marketplace.
-
-Computer Systems Architecture Course
-Assignment 1
-March 2021
-"""
-
+from threading import *
 
 class Marketplace:
     """
@@ -19,13 +12,26 @@ class Marketplace:
         :type queue_size_per_producer: Int
         :param queue_size_per_producer: the maximum size of a queue associated with each producer
         """
-        pass
+        self.queue_size_per_producer = queue_size_per_producer
+        
+        #locks
+        self.prod_lock = Lock()
+        self.cons_lock = Lock()
+        self.carts_lock = Lock()
+
+        self.producers_no = 0
+        #self.producers = dict()    # {producer_id, number_of_products}
+        self.products = dict()      # {producer_id, [product0, product1, ..]}   
+        self.carts = dict()         # {cart_id, [products]}
 
     def register_producer(self):
         """
         Returns an id for the producer that calls this.
         """
-        pass
+        with self.prod_lock:
+            id = self.producers_no + 1
+        self.products[id] = []
+        return id
 
     def publish(self, producer_id, product):
         """
@@ -39,7 +45,14 @@ class Marketplace:
 
         :returns True or False. If the caller receives False, it should wait and then try again.
         """
-        pass
+        
+        #guard
+        id = int(producer_id)
+        if len(self.products[id]) >= self.queue_size_per_producer:
+            return False
+
+        self.products[id].append(product)
+        return True
 
     def new_cart(self):
         """
@@ -47,11 +60,14 @@ class Marketplace:
 
         :returns an int representing the cart_id
         """
-        pass
+        id = len(self.carts)
+        with self.cons_lock:   
+            self.carts[id] = []
+        return id
 
     def add_to_cart(self, cart_id, product):
         """
-        Adds a product to the given cart. The method returns
+        Adds a product to the given cart. 
 
         :type cart_id: Int
         :param cart_id: id cart
@@ -61,7 +77,16 @@ class Marketplace:
 
         :returns True or False. If the caller receives False, it should wait and then try again
         """
-        pass
+        with self.carts_lock:
+            if product not in self.products.values():
+                return False
+
+            self.products = {key:val for key, val in self.products.items() if val != product}
+
+        self.carts[cart_id].append(product)
+        return True
+
+        
 
     def remove_from_cart(self, cart_id, product):
         """
