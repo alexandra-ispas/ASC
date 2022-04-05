@@ -32,12 +32,21 @@ class Consumer(Thread):
         :param kwargs: other arguments that are passed to the Thread's __init__()
         """
         Thread.__init__(self, **kwargs)
-
         self.carts = carts
         self.marketplace = marketplace
         self.retry_wait_time = retry_wait_time
 
-
     def run(self):
         for cart in self.carts:
             id = self.marketplace.new_cart()
+            for operation in cart:
+                q = operation['quantity']
+                i = 0
+                while i < q:
+                    if operation['type'] == 'add':
+                        if self.marketplace.add_to_chart(id, operation['product']):
+                            i += 1
+                        else:
+                            time.sleep(self.retry_wait_time)
+            self.marketplace.place_order(id)
+
