@@ -1,0 +1,26 @@
+Nume: Ispas Alexandra-Petrina
+Grupa: 336CA
+Mail: alexandra.ispas@stud.acs.upb.ro
+
+Organizare:
+    Nu am adăugat alte fișiere-sursă față de scheletul temei. 
+    Implemetarea folosește elemente de sicronizare pentru a simula accesul la
+    resurse într-un magazin.
+
+    Fișierului 'marketplace.py' reprezinta elementul-cheie din implementare: aici
+    se folosesc sincronizari și sunt implementate funcționalitățile de bază pentru
+    desfașurarea programului.
+
+    Din punctul meu de vedere, tema a fost foarte folositoare în a întelege mai 
+    bine sintaxa din Python și elementele de sincronizare specifice limbajului.
+
+    Cred ca implementarea mea este destul de eficientă, dar probabil se putea 
+    mai bine in ceea ce privește memoria folosită.
+
+    Am implementat toate funcționalitățile cerute.
+
+Resurse:
+    https://ocw.cs.pub.ro/courses/asc/laboratoare/03
+
+Git:
+    https://github.com/alexandra-ispas/ASC

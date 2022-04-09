@@ -12,8 +12,10 @@ import logging
 from logging.handlers import RotatingFileHandler
 import time
 
+from tema.product import Coffee
+
 logging.basicConfig(
-        handlers=[RotatingFileHandler('marketplace.log', maxBytes=100000, backupCount=15)],
+        handlers=[RotatingFileHandler('marketplace.log', maxBytes=1000, backupCount=15)],
         level=logging.INFO & logging.ERROR,
         format="[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s",
         datefmt='%Y-%m-%dT%H:%M:%S')
@@ -22,7 +24,7 @@ logging.Formatter.converter = time.gmtime   # converted to gmtime
 
 class ProductsInfo:
     """
-    Class that contains all the deteils about the products in the implementation.
+    Class that contains all the details about the products in the implementation.
     It uses dictionaries to make accessing the product or the producer easier.
     """
     def __init__(self, queue_size_per_producer):
@@ -33,7 +35,7 @@ class ProductsInfo:
         self.products = []  # list with all products from all producers
         self.product_and_producer = {}  # stores (product, producer) information
         self.queue_size_per_producer = queue_size_per_producer  # max no. of items per producer
-        logging.info('ProductsInfo constructor called with parameter: queue_size_per_producer = %d', queue_size_per_producer)
+        logging.info('ProductsInfo constructor with parameter: queue_size_per_producer = %d', queue_size_per_producer)
 
     def check_producer(self, producer):
         """
@@ -130,7 +132,6 @@ class Marketplace:
             self.products_info.products_no[producer_id] += 1
             # add an entry for this producer with the correspoing product id
             self.products_info.product_and_producer[product] = producer_id
-
             # add product to the list of products
             self.products_info.products.append(product)
             result = True
@@ -171,10 +172,8 @@ class Marketplace:
             producer_id = self.products_info.product_and_producer[product]
             # firstly, from the internal list of the producer
             self.products_info.products_no[producer_id] -= 1
-
             # the from the list containg all the products
             self.products_info.products.remove(product)
-
             # lastly, it is added to the cart
             self.carts_info.carts[cart_id].append(product)
             logging.info('The product %s is added to the cart %d', product.get_name(), cart_id)
@@ -197,13 +196,10 @@ class Marketplace:
             return False
         # get the id of the producer
         producer_id = self.products_info.product_and_producer[product]
-
         # removing product from cart
         self.carts_info.carts[cart_id].remove(product)
-
         # appending product to the list with all the products
         self.products_info.products.append(product)
-
         # increase the number of available products for the producer
         self.products_info.products_no[producer_id] += 1
         logging.info('The product %s is removed from the cart %d', product.get_name(), cart_id)
@@ -218,20 +214,74 @@ class Marketplace:
         """
         # th products in the current cart
         products = self.carts_info.carts.pop(cart_id, None)
-
         # printing products
         for product in products:
             print(f'{currentThread().getName()} bought {product}')
-
         logging.info('The order corresponding to the cart %d was placed', cart_id)
         return products
 
 class TestMarketplace(unittest.TestCase):
-
+    """
+    Class used for testing the implementation
+    """
     def setUp(self):
-        self.marketplace = Marketplace(4)
+        self.marketplace = Marketplace(2)
+        self.product = Coffee("Indonezia", 5.05, "MEDIUM", 1)
 
     def test_register_producer(self):
+        """
+        test for 'register_producer'
+        """
         self.assertEqual(self.marketplace.register_producer(), 0)
         self.assertEqual(self.marketplace.register_producer(), 1)
         self.assertEqual(self.marketplace.register_producer(), 2)
+
+    def test_publish(self):
+        """
+        test for 'publish'
+        """
+        producer_id = self.marketplace.register_producer()
+        self.assertEqual(self.marketplace.publish(producer_id, self.product), True)
+        self.assertEqual(self.marketplace.publish(producer_id, self.product), True)
+        self.assertEqual(self.marketplace.publish(producer_id, self.product), False)
+
+    def test_new_cart(self):
+        """
+        test for 'new_cart'
+        """
+        self.assertEqual(self.marketplace.new_cart(), 0)
+        self.assertEqual(self.marketplace.new_cart(), 1)
+        self.assertEqual(self.marketplace.new_cart(), 2)
+
+    def test_add_to_chart(self):
+        """
+        test for 'add_to_cart'
+        """
+        cart_id = self.marketplace.new_cart()
+        producer_id = self.marketplace.register_producer()
+        self.marketplace.publish(producer_id, self.product)
+        self.assertEqual(self.marketplace.add_to_cart(cart_id, self.product), True)
+        self.assertEqual(self.marketplace.add_to_cart(cart_id, self.product), False)
+
+    def test_remove_from_cart(self):
+        """
+        test for 'remove_from_cart'
+        """
+        cart_id = self.marketplace.new_cart()
+        producer_id = self.marketplace.register_producer()
+        self.marketplace.publish(producer_id, self.product)
+        self.marketplace.add_to_cart(cart_id, self.product)
+        self.assertEqual(self.marketplace.remove_from_cart(cart_id, self.product), True)
+        self.assertEqual(self.marketplace.remove_from_cart(cart_id, self.product), False)
+
+    def test_place_order(self):
+        """
+        test for 'place_order'
+        """
+        cart_id = self.marketplace.new_cart()
+        producer_id = self.marketplace.register_producer()
+        self.marketplace.publish(producer_id, self.product)
+        self.marketplace.publish(producer_id, self.product)
+        self.marketplace.add_to_cart(cart_id, self.product)
+        self.marketplace.add_to_cart(cart_id, self.product)
+        self.assertEqual(self.marketplace.place_order(cart_id), [self.product, self.product])

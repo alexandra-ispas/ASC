@@ -47,16 +47,19 @@ class Consumer(Thread):
             for operation in cart:
                 op_no = operation['quantity']
                 iters = 0
-                # adding a product as many times as it is needed
+                # performing the specified operations
                 while iters < op_no:
                     if operation['type'] == 'add':
+                        # if something needs to be added
                         ret = self.marketplace.add_to_cart(cart_id, operation['product'])
                     else:
+                        # if something needs to be removed
                         ret = self.marketplace.remove_from_cart(cart_id, operation['product'])
 
                     if ret or ret is None:
                         iters += 1
                     else:
+                        # if the previous operation failed
                         time.sleep(self.retry_wait_time)
 
             # placing order at the marketplace

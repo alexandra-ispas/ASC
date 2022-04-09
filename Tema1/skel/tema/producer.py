@@ -36,7 +36,7 @@ class Producer(Thread):
         self.products = products
         self.marketplace = marketplace
         self.republish_wait_time = republish_wait_time
-        # get the corresponding id for thie producer
+        # get the corresponding id for the producer
         self.producer_id = marketplace.register_producer()
 
     def run(self):
