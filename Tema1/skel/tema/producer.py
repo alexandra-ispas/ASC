@@ -3,11 +3,12 @@ This module represents the Producer.
 
 Computer Systems Architecture Course
 Assignment 1
-March 2021
+March 2022
 """
 
 from threading import Thread
 import time
+
 
 class Producer(Thread):
     """
@@ -35,15 +36,18 @@ class Producer(Thread):
         self.products = products
         self.marketplace = marketplace
         self.republish_wait_time = republish_wait_time
-        self.id = marketplace.register_producer()
+        # get the corresponding id for thie producer
+        self.producer_id = marketplace.register_producer()
 
     def run(self):
         while True:
-            for (product, qty, wait_time) in self.products:
+            # publish all the products for this producer
+            for (product, qty, _) in self.products:
                 i = 0
                 while i < qty:
-                    if self.marketplace.publish(self.id, product):
-                        time.sleep(wait_time)
+                    # checking if the operation was successful
+                    if self.marketplace.publish(self.producer_id, product):
                         i += 1
-                    else:
-                        time.sleep(self.republish_wait_time)
+                    # if not, sleep and try again
+                    time.sleep(self.republish_wait_time)
+                        

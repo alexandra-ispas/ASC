@@ -3,11 +3,12 @@ This module represents the Consumer.
 
 Computer Systems Architecture Course
 Assignment 1
-March 2021
+March 2022
 """
 
 from threading import Thread
 import time
+
 
 class Consumer(Thread):
     """
@@ -37,16 +38,26 @@ class Consumer(Thread):
         self.retry_wait_time = retry_wait_time
 
     def run(self):
+        # iterating through carts
         for cart in self.carts:
-            id = self.marketplace.new_cart()
-            for operation in cart:
-                q = operation['quantity']
-                i = 0
-                while i < q:
-                    if operation['type'] == 'add':
-                        if self.marketplace.add_to_chart(id, operation['product']):
-                            i += 1
-                        else:
-                            time.sleep(self.retry_wait_time)
-            self.marketplace.place_order(id)
+            # registering cart
+            cart_id = self.marketplace.new_cart()
 
+            # iterating through current cart operations
+            for operation in cart:
+                op_no = operation['quantity']
+                iters = 0
+                # adding a product as many times as it is needed
+                while iters < op_no:
+                    if operation['type'] == 'add':
+                        ret = self.marketplace.add_to_cart(cart_id, operation['product'])
+                    else:
+                        ret = self.marketplace.remove_from_cart(cart_id, operation['product'])
+
+                    if ret or ret is None:
+                        iters += 1
+                    else:
+                        time.sleep(self.retry_wait_time)
+
+            # placing order at the marketplace
+            self.marketplace.place_order(cart_id)

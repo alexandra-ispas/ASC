@@ -3,7 +3,7 @@ This module offers the available Products.
 
 Computer Systems Architecture Course
 Assignment 1
-March 2021
+March 2022
 """
 
 from dataclasses import dataclass
@@ -16,6 +16,12 @@ class Product:
     """
     name: str
     price: int
+
+    def get_name(self):
+        """
+        Returns the name of a 'Product' object
+        """
+        return self.name
 
 
 @dataclass(init=True, repr=True, order=False, frozen=True)
