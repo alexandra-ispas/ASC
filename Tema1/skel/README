@@ -19,6 +19,11 @@ Organizare:
 
     Am implementat toate funcționalitățile cerute.
 
+Testare:
+    Pentru partea de unittesting am folosit comanda urmatoare:
+    python3 -m unittest -v marketplace.py 
+    din folder-ul tema/ si trebuie decomentata linia 15 din marketplace.py
+
 Resurse:
     https://ocw.cs.pub.ro/courses/asc/laboratoare/03
 
