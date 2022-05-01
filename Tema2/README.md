@@ -53,7 +53,7 @@ Run=./tema2_neopt: N=1200: Time=37.731621
 From the result of the valgrind command, I noticed that the miss rate is very big.
 
 ## Blas implementation
-I used the functions <mark>cblas_dtrmm</mark> and <mark>cblas_dgemm</mark> cblas_dtrmm was used to take 
+I used the functions <mark>cblas_dtrmm</mark> and <mark>cblas_dgemm</mark>. cblas_dtrmm was used to take 
 into account the fact that *A* is s triangular matrix.
 
 ### Steps:
